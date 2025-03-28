@@ -1,0 +1,171 @@
+import { useLocation, useNavigate } from "react-router-dom";
+import { db } from "../../firebase";
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { useAuth } from "../context/AuthContext";
+import { CartContext } from "../context/CartContext";
+import { useContext } from "react";
+
+function OrderSummary() {
+  const location = useLocation();
+  const { user } = useAuth();
+  const { checkout } = useContext(CartContext);
+  const navigate = useNavigate();
+  const state = location.state || {};
+  const { cart, selectedAddress, selectedPaymentMethod } = state;
+
+  const handleConfirmOrder = async () => {
+    if (!user) {
+      navigate("/signin");
+      return;
+    }
+
+    try {
+      const totalAmount = cart.reduce((total, item) => {
+        const itemPrice = item.product.price * (1 - (item.product.discount || 0) / 100);
+        return total + itemPrice * item.quantity;
+      }, 0);
+
+
+      const taxAmount = totalAmount * 0.18; // 18% tax
+      const finalAmount = totalAmount + taxAmount;
+
+      const orderData = {
+        id: Date.now().toString(),
+        date: new Date().toISOString(),
+        items: cart,
+        address: selectedAddress,
+        paymentMethod: selectedPaymentMethod,
+        status: "Order Successful",
+        totalAmount: Math.round(finalAmount),
+
+      };
+
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, {
+        orders: arrayUnion(orderData)
+      });
+
+      // Clear the cart
+      checkout();
+      
+      // Show success message or redirect
+      navigate("/profile", { 
+        state: { activeTab: "orders", message: "Order placed successfully!" }
+      });
+    } catch (error) {
+      console.error("Error saving order:", error);
+      // Handle error (show error message to user)
+    }
+  };
+
+  if (!cart || !selectedAddress || !selectedPaymentMethod) {
+    return (
+      <div className="p-6 mx-auto bg-gray-50 dark:bg-gray-900 shadow-lg rounded-lg text-gray-900 dark:text-gray-200">
+        No order details available.
+      </div>
+    );
+  }
+
+  const totalAmount = cart.reduce((total, item) => {
+    const itemPrice = item.product.price * (1 - (item.product.discount || 0) / 100);
+    return total + itemPrice * item.quantity;
+  }, 0);
+
+
+  const taxAmount = totalAmount * 0.18; // 18% tax
+  const finalAmount = totalAmount + taxAmount;
+
+  return (
+    <div className="p-6 mx-auto bg-gray-50 dark:bg-gray-900 shadow-lg rounded-lg">
+      <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
+        Order Summary
+      </h1>
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          Shipping Address
+        </h2>
+        {selectedAddress && typeof selectedAddress === "object" ? (
+          <p className="text-gray-700 dark:text-gray-300">
+            {`${selectedAddress.street || ""}, ${selectedAddress.city || ""}, ${
+              selectedAddress.state || ""
+            }, ${selectedAddress.zip || ""}`}
+          </p>
+        ) : (
+          <p className="text-gray-700 dark:text-gray-300">
+            Address not available
+          </p>
+        )}
+      </div>
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          Payment Method
+        </h2>
+        <p className="text-gray-700 dark:text-gray-300">
+          {selectedPaymentMethod === "Cash on Delivery"
+            ? "Cash on Delivery"
+            : selectedPaymentMethod && selectedPaymentMethod.cardHolderName
+            ? `${selectedPaymentMethod.cardHolderName} - ${selectedPaymentMethod.cardNumber}`
+            : "Payment method not available"}
+        </p>
+      </div>
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+          Products
+        </h2>
+        {cart.map((item, index) =>
+          item.product ? (
+            <div
+              key={index}
+              className="flex items-center justify-between mb-4 p-4 bg-white dark:bg-gray-700 rounded-lg shadow-md"
+            >
+              <img
+                src={item.product.image1}
+                alt={item.product.title}
+                className="w-24 h-24 object-cover rounded-lg"
+              />
+              <div className="ml-4 flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {item.product.title}
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300">
+                  Quantity: {item.quantity}
+                </p>
+                <p className="text-gray-700 dark:text-gray-300">
+                  Price: ₹{item.product.price}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div
+              key={index}
+              className="flex items-center justify-between mb-4 p-4 bg-white dark:bg-gray-700 rounded-lg shadow-md"
+            >
+              <p className="text-red-500 text-sm">
+                Product details not available
+              </p>
+            </div>
+          )
+        )}
+      </div>
+      <div className="mt-6 p-4 bg-white dark:bg-gray-700 rounded-lg shadow-md max-w-md ">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+          Order Total
+        </h2>
+        <div className="flex justify-between mb-2">
+          <span className="text-gray-600 dark:text-gray-300">Total Amount :</span>
+          <span className="text-gray-900 dark:text-white font-bold">
+            ₹{Math.round(finalAmount).toFixed(2)}
+          </span>
+        </div>
+      </div>
+      <button
+        onClick={handleConfirmOrder}
+        className="mt-6 w-full bg-teal-700 text-white py-3 rounded-lg hover:bg-teal-900 font-semibold"
+      >
+        Confirm Order
+      </button>
+    </div>
+  );
+}
+
+export default OrderSummary;
