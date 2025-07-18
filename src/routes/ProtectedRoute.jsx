@@ -7,7 +7,7 @@ const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>; // Show a loading spinner while checking auth
+    return <div>Loading...</div>; 
   }
 
   return user ? children : <Navigate to="/signin" />;

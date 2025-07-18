@@ -36,7 +36,7 @@ export default function Header() {
 
 
 
-  // Calculate the number of unique products in the cart
+  // Calculate the number of products in the cart
   const uniqueProductsCount = cart.length;
 
   const toggleMobileMenu = () => {

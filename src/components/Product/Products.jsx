@@ -58,7 +58,6 @@ function Products() {
     fetchProducts();
   }, []);
 
-  // Update the container variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {

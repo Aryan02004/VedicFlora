@@ -122,11 +122,11 @@ const Profile = () => {
   }, [user]);
 
   // Add this to Profile.jsx
-useEffect(() => {
-  if (location.state?.activeTab) {
-    setActiveTab(location.state.activeTab);
-  }
-}, [location]);
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab);
+    }
+  }, [location]);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -375,18 +375,18 @@ useEffect(() => {
         // Close dialog and reset state
         setIsOrderCancelDialogOpen(false);
         setOrderToCancel(null);
-        
+
         // Show success toast
         setToastMessage("Order cancelled successfully");
         setShowToast(true);
-        
+
         // Auto hide toast after 3 seconds
         setTimeout(() => {
           setShowToast(false);
         }, 3000);
       } catch (error) {
         console.error("Error cancelling order:", error);
-        
+
         // Show error toast
         setToastMessage("Failed to cancel order. Please try again.");
         setShowToast(true);
@@ -1046,7 +1046,9 @@ useEffect(() => {
               )}
             </Button>
             <DialogClose asChild>
-              <Button variant="outline" disabled={isCancelling}>Cancel</Button>
+              <Button variant="outline" disabled={isCancelling}>
+                Cancel
+              </Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>
@@ -1113,7 +1115,9 @@ useEffect(() => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      {showToast && <Toast message={toastMessage} onClose={() => setShowToast(false)} />}
+      {showToast && (
+        <Toast message={toastMessage} onClose={() => setShowToast(false)} />
+      )}
     </div>
   );
 };

@@ -17,9 +17,18 @@ function Product() {
 
   return (
     <>
-      <BackgroundImage title="Plants" size={5} lineWidth={6} image="/plants-5.png" onLoad={handleBackgroundImageLoad} />
+      <BackgroundImage
+        title="Plants"
+        size={5}
+        lineWidth={6}
+        image="/plants-5.png"
+        onLoad={handleBackgroundImageLoad}
+      />
       <div className="flex justify-center my-4">
-        <button onClick={handleReviewClick} className="bg-teal-700 hover:bg-teal-800 text-white font-bold py-2 px-6 rounded-lg">
+        <button
+          onClick={handleReviewClick}
+          className="bg-teal-700 hover:bg-teal-800 text-white font-bold py-2 px-6 rounded-lg"
+        >
           See Customer Reviews
         </button>
       </div>

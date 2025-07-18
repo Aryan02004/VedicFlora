@@ -28,7 +28,6 @@ build
 .firebase
 .firebaserc
 firebase-debug.log
-firebase-debug.*.log
 
 # Appwrite
 .appwrite

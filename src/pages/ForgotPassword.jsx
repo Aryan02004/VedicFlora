@@ -17,7 +17,7 @@ const ForgotPassword = () => {
     setError("");
     setMessage("");
     setIsLoading(true);
-    
+
     try {
       await sendPasswordResetEmail(auth, email);
       setMessage("Password reset email sent successfully!");
@@ -26,9 +26,9 @@ const ForgotPassword = () => {
         setShowToast(false);
       }, 3000);
     } catch (error) {
-      if (error.code === 'auth/user-not-found') {
+      if (error.code === "auth/user-not-found") {
         setError("No user found with this email address");
-      } else if (error.code === 'auth/invalid-email') {
+      } else if (error.code === "auth/invalid-email") {
         setError("Invalid email address");
       } else {
         setError(error.message || "Failed to send reset email");
@@ -46,22 +46,23 @@ const ForgotPassword = () => {
             Reset your password
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            Enter your email address and we&#39;ll send you a link to reset your password.
+            Enter your email address and we&#39;ll send you a link to reset your
+            password.
           </p>
         </div>
-        
+
         {error && (
           <div className="bg-red-50 dark:bg-red-900/30 text-red-500 p-3 rounded-lg text-sm">
             {error}
           </div>
         )}
-        
+
         {message && (
           <div className="bg-green-50 dark:bg-green-900/30 text-green-600 p-3 rounded-lg text-sm">
             {message}
           </div>
         )}
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleResetPassword}>
           <div className="rounded-md shadow-sm">
             <div className="relative">
@@ -94,17 +95,25 @@ const ForgotPassword = () => {
               {isLoading ? "Sending..." : "Send Reset Link"}
             </button>
           </div>
-          
+
           <div className="flex items-center justify-center">
             <div className="text-sm">
-              <Link to="/signin" className="font-medium text-teal-600 hover:text-teal-500">
+              <Link
+                to="/signin"
+                className="font-medium text-teal-600 hover:text-teal-500"
+              >
                 Back to sign in
               </Link>
             </div>
           </div>
         </form>
       </div>
-      {showToast && <Toast message="Password reset email sent!" onClose={() => setShowToast(false)} />}
+      {showToast && (
+        <Toast
+          message="Password reset email sent!"
+          onClose={() => setShowToast(false)}
+        />
+      )}
     </div>
   );
 };

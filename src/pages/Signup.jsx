@@ -23,24 +23,24 @@ const Signup = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
-    
+
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
       // Use register function from context
       const { user } = await register(email, password, fullName);
-      
+
       // Show user-specific toast message
       setShowToast(true);
-      
+
       // You could utilize the user info in toast or set in state
       console.log(`User created with ID: ${user.uid}`);
-      
+
       setTimeout(() => {
         // Could pass user data to profile page if needed
         navigate("/profile");
@@ -48,11 +48,11 @@ const Signup = () => {
     } catch (error) {
       console.error("Registration error:", error);
       // Handle different Firebase auth errors
-      if (error.code === 'auth/email-already-in-use') {
+      if (error.code === "auth/email-already-in-use") {
         setError("Email is already in use");
-      } else if (error.code === 'auth/weak-password') {
+      } else if (error.code === "auth/weak-password") {
         setError("Password is too weak");
-      } else if (error.code === 'auth/invalid-email') {
+      } else if (error.code === "auth/invalid-email") {
         setError("Invalid email address");
       } else {
         setError(error.message || "Failed to register");

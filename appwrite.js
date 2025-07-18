@@ -1,4 +1,3 @@
-
 import { Client, Storage } from "appwrite";
 
 const client = new Client();

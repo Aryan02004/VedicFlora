@@ -87,7 +87,7 @@ function BenifitBlock() {
           // viewport={{ once: true, margin: "-100px" }}
         >
           <motion.div className="text-center mb-12" variants={itemVariants}>
-            <GiHerbsBundle className="text-teal-600 dark:text-teal-400 text-4xl mx-auto mb-4" />
+            <GiHerbsBundle className="text-teal-600 dark:text-teal-400 text-4xl mx-auto mb-4"/>
             <h2
               className="text-3xl font-medium text-gray-800 dark:text-white mb-2 tracking-wider"
               style={{ fontFamily: "Lobster, serif" }}
@@ -108,7 +108,7 @@ function BenifitBlock() {
           >
             <FaQuoteLeft className="text-teal-500/20 dark:text-teal-400/20 text-6xl absolute top-8 left-8" />
 
-            {/* Navigation Buttons */}
+            {/* Navigation Button */}
             <motion.button
               whileHover={{ scale: 1 }}
               whileTap={{ scale: 0.95 }}

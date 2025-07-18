@@ -25,7 +25,7 @@ const Signin = () => {
     try {
       // Use login function from context
       await login(email, password);
-      
+
       // Show success toast and navigate
       setShowToast(true);
       setTimeout(() => {
@@ -35,18 +35,18 @@ const Signin = () => {
       console.error("Login error:", error);
       // More comprehensive error handling
       switch (error.code) {
-        case 'auth/invalid-credential':
-        case 'auth/wrong-password':
-        case 'auth/user-not-found':
+        case "auth/invalid-credential":
+        case "auth/wrong-password":
+        case "auth/user-not-found":
           setError("Invalid email or password");
           break;
-        case 'auth/too-many-requests':
+        case "auth/too-many-requests":
           setError("Too many failed login attempts. Please try again later.");
           break;
-        case 'auth/user-disabled':
+        case "auth/user-disabled":
           setError("This account has been disabled.");
           break;
-        case 'auth/invalid-email':
+        case "auth/invalid-email":
           setError("Invalid email format.");
           break;
         default:
@@ -82,7 +82,7 @@ const Signin = () => {
             Please sign in to your account
           </p>
         </div>
-        
+
         {error && (
           <div className="bg-red-50 dark:bg-red-900/30 text-red-500 p-3 rounded-lg text-sm">
             {error}
@@ -137,13 +137,19 @@ const Signin = () => {
                 type="checkbox"
                 className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+              <label
+                htmlFor="remember-me"
+                className="ml-2 block text-sm text-gray-900 dark:text-gray-300"
+              >
                 Remember me
               </label>
             </div>
 
             <div className="text-sm">
-              <Link to="/forgot-password" className="font-medium text-teal-600 hover:text-teal-500">
+              <Link
+                to="/forgot-password"
+                className="font-medium text-teal-600 hover:text-teal-500"
+              >
                 Forgot your password?
               </Link>
             </div>
@@ -158,13 +164,15 @@ const Signin = () => {
               {isLoading ? "Signing in..." : "Sign In"}
             </button>
           </div>
-          
+
           <div className="flex items-center my-4">
             <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600"></div>
-            <span className="px-4 text-sm text-gray-500 dark:text-gray-400">or</span>
+            <span className="px-4 text-sm text-gray-500 dark:text-gray-400">
+              or
+            </span>
             <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600"></div>
           </div>
-          
+
           {/* Uncomment for Google Sign-In */}
           {/* <div>
             <button
@@ -180,14 +188,22 @@ const Signin = () => {
           <div className="text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Don&#39;t have an account?{" "}
-              <Link to="/signup" className="font-medium text-teal-600 hover:text-teal-500">
+              <Link
+                to="/signup"
+                className="font-medium text-teal-600 hover:text-teal-500"
+              >
                 Sign up
               </Link>
             </p>
           </div>
         </form>
       </div>
-      {showToast && <Toast message="User signed in successfully!" onClose={() => setShowToast(false)} />}
+      {showToast && (
+        <Toast
+          message="User signed in successfully!"
+          onClose={() => setShowToast(false)}
+        />
+      )}
     </div>
   );
 };

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-
 function Shipping() {
   const [addresses, setAddresses] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState([]);
@@ -33,11 +32,14 @@ function Shipping() {
       }
 
       try {
-        const response = await fetch("http://localhost:5000/api/auth/shipping-data", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          "http://localhost:5000/api/auth/shipping-data",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!response.ok) {
           throw new Error("Failed to fetch shipping data");
@@ -89,21 +91,24 @@ function Shipping() {
       console.error("No token found");
       return;
     }
-  
+
     try {
-      const response = await fetch("http://localhost:5000/api/auth/update-address", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ address: newAddress }),
-      });
-  
+      const response = await fetch(
+        "http://localhost:5000/api/auth/update-address",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ address: newAddress }),
+        }
+      );
+
       if (!response.ok) {
         throw new Error("Failed to update address");
       }
-  
+
       const updatedAddresses = await response.json();
       setAddresses(updatedAddresses);
       setSelectedAddress(newAddress);
@@ -118,21 +123,24 @@ function Shipping() {
       console.error("No token found");
       return;
     }
-  
+
     try {
-      const response = await fetch("http://localhost:5000/api/auth/update-payment-method", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ paymentMethod: newPaymentMethod }),
-      });
-  
+      const response = await fetch(
+        "http://localhost:5000/api/auth/update-payment-method",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ paymentMethod: newPaymentMethod }),
+        }
+      );
+
       if (!response.ok) {
         throw new Error("Failed to update payment method");
       }
-  
+
       const updatedPaymentMethods = await response.json();
       setPaymentMethods(updatedPaymentMethods);
       setSelectedPaymentMethod(newPaymentMethod);
@@ -242,7 +250,6 @@ function Shipping() {
 
   return (
     <div className="p-6 mx-auto bg-gray-100 dark:bg-gray-900 shadow-lg rounded-lg">
-      
       <div className="mb-4">
         <label className="block text-gray-700 dark:text-gray-300 mb-2">
           Select Shipping Address

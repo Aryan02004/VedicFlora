@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 
-// Initialize Firebase Admin SDK using environment variables
+// Initialize Firebase Admin SDK 
 const serviceAccount = {
   type: process.env.TYPE || "service_account",
   project_id: process.env.PROJECT_ID,

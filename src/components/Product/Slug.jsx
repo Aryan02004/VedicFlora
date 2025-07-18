@@ -9,7 +9,6 @@ import { useAuth } from "../../context/AuthContext";
 import Toast from "../Toast/Toast";
 import { motion } from "framer-motion";
 
-
 function Slug() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -23,7 +22,9 @@ function Slug() {
   useEffect(() => {
     const fetchProductBySlug = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/products/${slug}`);
+        const response = await fetch(
+          `http://localhost:5000/api/products/${slug}`
+        );
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
         }

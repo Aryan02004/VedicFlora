@@ -28,7 +28,7 @@ function BlogSlug() {
 
   const handlePlantNavigation = () => {
     if (blog.plantSlug) {
-      navigate(`/plant/${blog.plantSlug}`); // Use navigate instead of Navigate
+      navigate(`/plant/${blog.plantSlug}`); 
     } else {
       console.error("No related blog post found for this product");
     }

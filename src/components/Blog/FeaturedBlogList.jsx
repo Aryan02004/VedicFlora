@@ -82,7 +82,7 @@ function BlogList() {
           <motion.div
             key={blog.id}
             variants={itemVariants}
-            className=" bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm "
+            className=" bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-sm"
           >
             <Link to={`/blog/${blog.slug}`}>
               <motion.div

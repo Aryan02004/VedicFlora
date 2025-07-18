@@ -432,7 +432,7 @@ function AboutUs() {
         </div>
       </motion.section>
 
-      {/* Gallery Section */}
+      {/* Gallery */}
       <motion.section
         className="py-20"
         initial={{ opacity: 0 }}

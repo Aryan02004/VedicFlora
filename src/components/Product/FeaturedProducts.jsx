@@ -50,7 +50,7 @@ function FeaturedProducts() {
         setProducts(productList);
       } catch (error) {
         console.error("Error fetching products:", error);
-      } 
+      }
     };
 
     fetchProducts();

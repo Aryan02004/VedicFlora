@@ -129,18 +129,20 @@ function Admin() {
       setBlogs(data.blogs);
       setNurseries(data.nurseries);
       setOrders(data.orders);
-      
+
       const totalRevenue = data.stats.totalRevenue;
       const canceledAmount = data.orders
-        .filter(order => order.status === "Order Cancelled")
-        .reduce((total, order) => total + (parseFloat(order.totalAmount) || 0), 0);
-      
+        .filter((order) => order.status === "Order Cancelled")
+        .reduce(
+          (total, order) => total + (parseFloat(order.totalAmount) || 0),
+          0
+        );
+
       // Update stats with adjusted revenue
       setStats({
         ...data.stats,
-        totalRevenue: totalRevenue - canceledAmount
+        totalRevenue: totalRevenue - canceledAmount,
       });
-      
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
       alert("Error loading data. Please try again.");

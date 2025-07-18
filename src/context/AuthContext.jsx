@@ -1,14 +1,14 @@
 // src/context/AuthContext.js
 import { createContext, useContext, useEffect, useState } from "react";
-import PropTypes from 'prop-types';
-import { 
-  onAuthStateChanged, 
+import PropTypes from "prop-types";
+import {
+  onAuthStateChanged,
   signOut,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  updateProfile
+  updateProfile,
 } from "firebase/auth";
-import { auth } from '../../firebase';
+import { auth } from "../../firebase";
 
 const AuthContext = createContext();
 
@@ -25,14 +25,17 @@ export const AuthProvider = ({ children }) => {
             // User is signed in
             const token = await firebaseUser.getIdToken();
             localStorage.setItem("token", token); // Store token in localStorage
-            
+
             // Fetch additional user data from Firestore via your API
             try {
-              const response = await fetch("http://localhost:5000/api/auth/profile", {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              });
+              const response = await fetch(
+                "http://localhost:5000/api/auth/profile",
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
 
               if (response.ok) {
                 const userData = await response.json();
@@ -43,7 +46,7 @@ export const AuthProvider = ({ children }) => {
                   email: firebaseUser.email,
                   displayName: firebaseUser.displayName,
                   photoURL: firebaseUser.photoURL,
-                  token
+                  token,
                 });
               } else {
                 // If profile fetch fails, still use Firebase user
@@ -52,7 +55,7 @@ export const AuthProvider = ({ children }) => {
                   email: firebaseUser.email,
                   displayName: firebaseUser.displayName,
                   photoURL: firebaseUser.photoURL,
-                  token
+                  token,
                 });
               }
             } catch (profileError) {
@@ -63,7 +66,7 @@ export const AuthProvider = ({ children }) => {
                 email: firebaseUser.email,
                 displayName: firebaseUser.displayName,
                 photoURL: firebaseUser.photoURL,
-                token
+                token,
               });
             }
           } else {
@@ -89,7 +92,11 @@ export const AuthProvider = ({ children }) => {
   // Update your login function to handle errors better
   const login = async (email, password) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const token = await userCredential.user.getIdToken();
       localStorage.setItem("token", token);
       return { user: userCredential.user, token };
@@ -103,34 +110,41 @@ export const AuthProvider = ({ children }) => {
   const register = async (email, password, fullName) => {
     try {
       // Create user in Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
       // Update profile with fullName
       await updateProfile(userCredential.user, { displayName: fullName });
-      
+
       // Get the ID token
       const token = await userCredential.user.getIdToken();
       localStorage.setItem("token", token);
-      
+
       // Make an API call to save additional user data in Firestore
       const response = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           uid: userCredential.user.uid,
           fullName,
-          email
-        })
+          email,
+        }),
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
-        console.warn("Warning: User created in Firebase Auth but may not be fully registered in Firestore", errorText);
+        console.warn(
+          "Warning: User created in Firebase Auth but may not be fully registered in Firestore",
+          errorText
+        );
       }
-      
+
       return { user: userCredential.user, token };
     } catch (error) {
       console.error("Registration error in AuthContext:", error);
@@ -148,18 +162,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const contextValue = { 
-    user, 
+  const contextValue = {
+    user,
     loading,
     login,
     register,
-    logout 
+    logout,
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
 
@@ -169,4 +181,3 @@ AuthProvider.propTypes = {
 
 // Move this to a separate file to avoid Fast Refresh warning
 export const useAuth = () => useContext(AuthContext);
-

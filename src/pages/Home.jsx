@@ -26,7 +26,6 @@ function Home() {
 
   return (
     <div className="dark:bg-gray-900 overflow-hidden">
-      {/* Hero Carousel Section */}
       <ImageCarousel />
 
       {/* Welcome Banner */}

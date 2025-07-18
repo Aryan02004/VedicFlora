@@ -11,7 +11,6 @@ function NurseryList() {
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [loading, setLoading] = useState(true); // Add loading state
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {

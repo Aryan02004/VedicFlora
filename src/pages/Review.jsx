@@ -42,7 +42,7 @@ function Review() {
         setLoading(false);
       }
     };
-  
+
     fetchReviews();
   }, []);
 
@@ -96,8 +96,6 @@ function Review() {
     return Object.keys(newErrors).length === 0;
   };
 
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
@@ -132,7 +130,7 @@ function Review() {
         // Show success toast message
         setToastMessage("Review submitted successfully!");
         setShowToast(true);
-        
+
         // Reset form after submission
         setRating(0);
         setReviewData({
@@ -563,7 +561,9 @@ function Review() {
           </>
         )}
       </div>
-      {showToast && <Toast message={toastMessage} onClose={() => setShowToast(false)} />}
+      {showToast && (
+        <Toast message={toastMessage} onClose={() => setShowToast(false)} />
+      )}
     </div>
   );
 }

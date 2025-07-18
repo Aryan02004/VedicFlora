@@ -49,10 +49,10 @@ function OrderSummary() {
 
       // Clear the cart
       checkout();
-      
+
       // Show toast
       setShowToast(true);
-      
+
       // Add a slight delay before navigation to allow the toast to be seen
       setTimeout(() => {
         // Navigate to profile page with orders tab active
@@ -139,9 +139,12 @@ function OrderSummary() {
                   Quantity: {item.quantity}
                 </p>
                 <p className="text-gray-700 dark:text-gray-300">
-                  Price: ₹{ Math.round( (item.product.price
-                  || 0) * (1 - (item.product.discount || 0) / 100) *
-                  item.quantity ).toFixed(2)}
+                  Price: ₹
+                  {Math.round(
+                    (item.product.price || 0) *
+                      (1 - (item.product.discount || 0) / 100) *
+                      item.quantity
+                  ).toFixed(2)}
                 </p>
               </div>
             </div>
@@ -184,11 +187,11 @@ function OrderSummary() {
           "Confirm Order"
         )}
       </button>
-      
+
       {showToast && (
-        <Toast 
-          message="Order placed successfully!" 
-          onClose={() => setShowToast(false)} 
+        <Toast
+          message="Order placed successfully!"
+          onClose={() => setShowToast(false)}
         />
       )}
     </div>
