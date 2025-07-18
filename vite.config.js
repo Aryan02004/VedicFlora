@@ -1,27 +1,3 @@
-// import { defineConfig } from 'vite'
-// import path from "path"
-// import react from '@vitejs/plugin-react'
-// // import tailwindcss from '@tailwindcss'
-
-
-// // https://vite.dev/config/
-// export default defineConfig({
-//   plugins: [react()],
-//   resolve: {
-//     alias: {
-//       "@": path.resolve( "./src"),
-//     },
-//   },
-//   compilerOptions: {
-//     baseUrl: ".",
-//     paths: {
-//       "@/*": ["src/*"]
-//     }
-//   },
-//   include: ["src"]
-// })
-
-
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -35,4 +11,27 @@ export default defineConfig({
       '@shadcn/ui': path.resolve(__dirname, 'node_modules/@shadcn/ui/dist'),
     },
   },
+  build: {
+    sourcemap: true, // Generate sourcemaps for better error reporting
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      onwarn(warning, warn) {
+        // Ignore "use client" directive warnings
+        if (warning.message.includes('Module level directives cause errors when bundled, "use client"')) {
+          return;
+        }
+        // Ignore sourcemap warnings for problematic files
+        if (warning.message.includes("Can't resolve original location of error")) {
+          return;
+        }
+        warn(warning);
+      },
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['framer-motion', '@radix-ui/react-label', '@radix-ui/react-dialog'],
+        }
+      }
+    }
+  }
 });
