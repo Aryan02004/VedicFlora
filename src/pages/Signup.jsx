@@ -1,55 +1,64 @@
 // src/components/Signup.js
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "../../firebase";
-import { doc, setDoc } from "firebase/firestore";
 import { useNavigate, Link } from "react-router-dom";
 import Toast from "../components/Toast/ToastMassege";
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input-1";
 import { cn } from "../lib/utils";
 import PropTypes from "prop-types";
+import { useAuth } from "../context/AuthContext";
 
 const Signup = () => {
+  const { register } = useAuth();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [showToast, setShowToast] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
-
+    
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
+    setIsLoading(true);
+    
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-
-      // Save additional user details in Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        fullName,
-        email,
-      });
-
+      // Use register function from context
+      const { user } = await register(email, password, fullName);
+      
+      // Show user-specific toast message
       setShowToast(true);
+      
+      // You could utilize the user info in toast or set in state
+      console.log(`User created with ID: ${user.uid}`);
+      
       setTimeout(() => {
-        setShowToast(false);
-        navigate("/"); // Navigate to home page
-      }, 2000);
+        // Could pass user data to profile page if needed
+        navigate("/profile");
+      }, 1500);
     } catch (error) {
-      setError(error.message);
+      console.error("Registration error:", error);
+      // Handle different Firebase auth errors
+      if (error.code === 'auth/email-already-in-use') {
+        setError("Email is already in use");
+      } else if (error.code === 'auth/weak-password') {
+        setError("Password is too weak");
+      } else if (error.code === 'auth/invalid-email') {
+        setError("Invalid email address");
+      } else {
+        setError(error.message || "Failed to register");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -60,7 +69,7 @@ const Signup = () => {
           Welcome to Vedic Flora
         </h2>
         <p className="mt-2 text-base text-neutral-600 dark:text-neutral-100 text-center">
-          Join us today and explore our power of Ayurvedic herbal plants 
+          Join us today and explore our power of Ayurvedic herbal plants
         </p>
 
         {error && (
@@ -75,7 +84,7 @@ const Signup = () => {
               <Label htmlFor="fullname">Full name</Label>
               <Input
                 id="fullname"
-                placeholder="Tyler"
+                placeholder="Vedic Flora"
                 type="text"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
@@ -109,7 +118,7 @@ const Signup = () => {
             />
           </LabelInputContainer>
           <LabelInputContainer className="mb-8">
-            <Label htmlFor="password">Confirm password</Label>
+            <Label htmlFor="confirmPassword">Confirm password</Label>
             <Input
               id="confirmPassword"
               placeholder="••••••••"
@@ -122,10 +131,11 @@ const Signup = () => {
           </LabelInputContainer>
 
           <button
-            className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-teal-700 to-teal-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-teal-800 dark:from-teal-700 dark:to-teal-600 dark:shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset]"
+            className="group/btn relative block h-10 w-full rounded-md bg-gradient-to-br from-teal-700 to-teal-600 font-medium text-white shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:bg-teal-800 dark:from-teal-700 dark:to-teal-600 dark:shadow-[0px_1px_0px_0px_#27272a_inset,0px_-1px_0px_0px_#27272a_inset] disabled:opacity-70 disabled:cursor-not-allowed"
             type="submit"
+            disabled={isLoading}
           >
-            Sign up &rarr;
+            {isLoading ? "Signing up..." : "Sign up →"}
             <BottomGradient />
           </button>
 

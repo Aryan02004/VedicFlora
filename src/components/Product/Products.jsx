@@ -1,13 +1,11 @@
 import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
-import { db } from "../../../firebase.js"; // Import Firebase config
-import { collection, getDocs } from "firebase/firestore";
 import { BsCart3 } from "react-icons/bs";
 import { Badge } from "../ui/badge.js";
 import Toast from "../Toast/Toast.jsx";
-import { CartContext } from "../../context/CartContext";
-import { useAuth } from "../../context/AuthContext";
+import { CartContext } from "../../context/CartContext.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
 import { Loader } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -44,16 +42,16 @@ function Products() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "products"));
-        const productList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const response = await fetch("http://localhost:5000/api/products");
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+        const productList = await response.json();
         setProducts(productList);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
-        setLoading(false); // Set loading to false after fetching data
+        setLoading(false);
       }
     };
 
@@ -170,14 +168,20 @@ function Products() {
                       </div>
                     </Link>
                     <div className="mt-6 mb-auto w-full flex gap-4 font-sans">
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full bg-teal-700 text-white py-2 gap-3 rounded-lg hover:bg-teal-900 flex items-center justify-center font-semibold"
-                        onClick={() => handleAddToCart(product)}
-                      >
-                        <BsCart3 /> Add to Cart
-                      </motion.button>
+                      {product.stock > 0 ? (
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full bg-teal-700 text-white py-2 gap-3 rounded-lg hover:bg-teal-900 flex items-center justify-center font-semibold"
+                          onClick={() => handleAddToCart(product)}
+                        >
+                          <BsCart3 /> Add to Cart
+                        </motion.button>
+                      ) : (
+                        <div className="w-full bg-gray-300 text-gray-700 py-2 rounded-lg flex items-center justify-center font-semibold cursor-not-allowed">
+                          Out of Stock
+                        </div>
+                      )}
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}

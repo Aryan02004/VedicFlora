@@ -1,9 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { db } from "../../firebase";
-import { doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
-import { useContext } from "react";
+import { useContext, useState } from "react";
+import Toast from "../components/Toast/ToastMassege";
 
 function OrderSummary() {
   const location = useLocation();
@@ -12,6 +11,8 @@ function OrderSummary() {
   const navigate = useNavigate();
   const state = location.state || {};
   const { cart, selectedAddress, selectedPaymentMethod } = state;
+  const [showToast, setShowToast] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleConfirmOrder = async () => {
     if (!user) {
@@ -20,41 +21,48 @@ function OrderSummary() {
     }
 
     try {
-      const totalAmount = cart.reduce((total, item) => {
-        const itemPrice = item.product.price * (1 - (item.product.discount || 0) / 100);
-        return total + itemPrice * item.quantity;
-      }, 0);
+      setIsSubmitting(true);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
 
-
-      const taxAmount = totalAmount * 0.18; // 18% tax
-      const finalAmount = totalAmount + taxAmount;
-
-      const orderData = {
-        id: Date.now().toString(),
-        date: new Date().toISOString(),
-        items: cart,
-        address: selectedAddress,
-        paymentMethod: selectedPaymentMethod,
-        status: "Order Successful",
-        totalAmount: Math.round(finalAmount),
-
-      };
-
-      const userRef = doc(db, "users", user.uid);
-      await updateDoc(userRef, {
-        orders: arrayUnion(orderData)
+      const response = await fetch("http://localhost:5000/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          cart,
+          selectedAddress,
+          selectedPaymentMethod,
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error("Failed to place order");
+      }
+
+      await response.json();
 
       // Clear the cart
       checkout();
       
-      // Show success message or redirect
-      navigate("/profile", { 
-        state: { activeTab: "orders", message: "Order placed successfully!" }
-      });
+      // Show toast
+      setShowToast(true);
+      
+      // Add a slight delay before navigation to allow the toast to be seen
+      setTimeout(() => {
+        // Navigate to profile page with orders tab active
+        navigate("/profile", { state: { activeTab: "orders" } });
+      }, 1500);
     } catch (error) {
-      console.error("Error saving order:", error);
-      // Handle error (show error message to user)
+      console.error("Error placing order:", error);
+      alert("Failed to place order. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -67,10 +75,10 @@ function OrderSummary() {
   }
 
   const totalAmount = cart.reduce((total, item) => {
-    const itemPrice = item.product.price * (1 - (item.product.discount || 0) / 100);
+    const itemPrice =
+      item.product.price * (1 - (item.product.discount || 0) / 100);
     return total + itemPrice * item.quantity;
   }, 0);
-
 
   const taxAmount = totalAmount * 0.18; // 18% tax
   const finalAmount = totalAmount + taxAmount;
@@ -131,7 +139,9 @@ function OrderSummary() {
                   Quantity: {item.quantity}
                 </p>
                 <p className="text-gray-700 dark:text-gray-300">
-                  Price: ₹{item.product.price}
+                  Price: ₹{ Math.round( (item.product.price
+                  || 0) * (1 - (item.product.discount || 0) / 100) *
+                  item.quantity ).toFixed(2)}
                 </p>
               </div>
             </div>
@@ -152,7 +162,9 @@ function OrderSummary() {
           Order Total
         </h2>
         <div className="flex justify-between mb-2">
-          <span className="text-gray-600 dark:text-gray-300">Total Amount :</span>
+          <span className="text-gray-600 dark:text-gray-300">
+            Total Amount :
+          </span>
           <span className="text-gray-900 dark:text-white font-bold">
             ₹{Math.round(finalAmount).toFixed(2)}
           </span>
@@ -160,10 +172,25 @@ function OrderSummary() {
       </div>
       <button
         onClick={handleConfirmOrder}
-        className="mt-6 w-full bg-teal-700 text-white py-3 rounded-lg hover:bg-teal-900 font-semibold"
+        disabled={isSubmitting}
+        className="mt-6 w-full bg-teal-700 text-white py-3 rounded-lg hover:bg-teal-900 font-semibold flex items-center justify-center"
       >
-        Confirm Order
+        {isSubmitting ? (
+          <>
+            <div className="mr-2 animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+            Processing...
+          </>
+        ) : (
+          "Confirm Order"
+        )}
       </button>
+      
+      {showToast && (
+        <Toast 
+          message="Order placed successfully!" 
+          onClose={() => setShowToast(false)} 
+        />
+      )}
     </div>
   );
 }

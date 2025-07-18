@@ -9,14 +9,13 @@ import { useAuth } from "../../context/AuthContext";
 import { CartContext } from "../../context/CartContext"; // Import CartContext
 import ThemeToggle from "../ThemeToggle";
 import { FaRegCircleUser } from "react-icons/fa6";
-// Import motion from framer-motion
 import { motion } from "framer-motion";
 
 export default function Header() {
   const [showSearch, setShowSearch] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State for mobile menu
-  const { user } = useAuth();
-  const { cart } = useContext(CartContext); // Get cart from CartContext
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user} = useAuth(); // Get user and logout function from useAuth
+  const { cart } = useContext(CartContext);
   const navigate = useNavigate();
 
   const handleSearchOpen = () => {
@@ -34,6 +33,8 @@ export default function Header() {
       navigate("/checkout");
     }
   };
+
+
 
   // Calculate the number of unique products in the cart
   const uniqueProductsCount = cart.length;
@@ -101,13 +102,16 @@ export default function Header() {
               )}
             </button>
             {user ? (
-              <NavLink
-                to="/profile"
-                className="text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 font-medium rounded-lg text-base sm:text-lg px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 lg:py-2.5 mr-1 sm:mr-2 focus:outline-none tracking-wide flex items-center"
-              >
-                <FaRegCircleUser className="mr-1 sm:mr-2" size={20} />
-                <span className="hidden sm:inline">Profile</span>
-              </NavLink>
+              <div className="flex items-center">
+                <NavLink
+                  to="/profile"
+                  className="text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600 font-medium rounded-lg text-base sm:text-lg px-3 sm:px-4 lg:px-5 py-1.5 sm:py-2 lg:py-2.5 mr-1 sm:mr-2 focus:outline-none tracking-wide flex items-center"
+                >
+                  <FaRegCircleUser className="mr-1 sm:mr-2" size={20} />
+                  <span className="hidden sm:inline">Profile</span>
+                </NavLink>
+
+              </div>
             ) : (
               <>
                 <Link

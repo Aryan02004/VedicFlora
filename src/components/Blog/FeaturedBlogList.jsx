@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
-import { db } from "../../../firebase.js"; // Import Firebase config
-import { collection, getDocs } from "firebase/firestore";
+
 import { motion } from "framer-motion";
 
 function BlogList() {
@@ -11,11 +10,11 @@ function BlogList() {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "blogData"));
-        const blogList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const response = await fetch("http://localhost:5000/api/blogs");
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+        const blogList = await response.json();
         setBlogs(blogList);
       } catch (error) {
         console.error("Error fetching blogs:", error);

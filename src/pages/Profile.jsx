@@ -1,7 +1,8 @@
 import { useAuth } from "../context/AuthContext";
 import { useState, useEffect } from "react";
-import { db } from "../../firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useLocation } from "react-router-dom";
+import Toast from "../components/Toast/ToastMassege";
+
 import {
   Dialog,
   DialogContent,
@@ -45,20 +46,87 @@ const Profile = () => {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deleteType, setDeleteType] = useState(null); // 'address' or 'payment'
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isOrderCancelDialogOpen, setIsOrderCancelDialogOpen] = useState(false);
+  const [orderToCancel, setOrderToCancel] = useState(null);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+  const [profileData, setProfileData] = useState({
+    fullName: "",
+    phoneNumber: "",
+  });
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const location = useLocation();
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (user) {
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setUserData(docSnap.data());
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            "http://localhost:5000/api/auth/profile",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch user data");
+          }
+
+          const userData = await response.json();
+          setUserData(userData); // Ensure this sets the state correctly
+        } catch (error) {
+          console.error("Error fetching user data:", error);
         }
       }
     };
 
     fetchUserData();
   }, [user]);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:5000/api/orders", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch orders");
+        }
+
+        const orders = await response.json();
+        setUserData((prev) => ({ ...prev, orders }));
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+
+    fetchOrders();
+  }, [user]);
+
+  // Add this to Profile.jsx
+useEffect(() => {
+  if (location.state?.activeTab) {
+    setActiveTab(location.state.activeTab);
+  }
+}, [location]);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -94,22 +162,35 @@ const Profile = () => {
 
   const handleSaveAddress = async () => {
     if (user) {
-      const userRef = doc(db, "users", user.uid);
-      const updatedAddresses = userData.addresses
-        ? [...userData.addresses]
-        : [];
-      if (address.id) {
-        const index = updatedAddresses.findIndex(
-          (addr) => addr.id === address.id
-        );
-        updatedAddresses[index] = address;
-      } else {
-        address.id = new Date().getTime().toString();
-        updatedAddresses.push(address);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
       }
-      await updateDoc(userRef, { addresses: updatedAddresses });
-      setUserData({ ...userData, addresses: updatedAddresses });
-      closeAddressDialog();
+
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/auth/update-address",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ address }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to update address");
+        }
+
+        const updatedAddresses = await response.json();
+        setUserData((prev) => ({ ...prev, addresses: updatedAddresses }));
+        closeAddressDialog();
+      } catch (error) {
+        console.error("Error updating address:", error);
+      }
     }
   };
 
@@ -156,46 +237,209 @@ const Profile = () => {
   };
 
   const handleSavePaymentMethod = async () => {
-    if (validatePaymentMethod()) {
-      if (user) {
-        const userRef = doc(db, "users", user.uid);
-        const updatedPaymentMethods = userData.paymentMethods
-          ? [...userData.paymentMethods]
-          : [];
-        if (paymentMethod.id) {
-          const index = updatedPaymentMethods.findIndex(
-            (method) => method.id === paymentMethod.id
-          );
-          updatedPaymentMethods[index] = paymentMethod;
-        } else {
-          paymentMethod.id = new Date().getTime().toString();
-          updatedPaymentMethods.push(paymentMethod);
+    if (validatePaymentMethod() && user) {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/auth/update-payment-method",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ paymentMethod }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to update payment method");
         }
-        await updateDoc(userRef, { paymentMethods: updatedPaymentMethods });
-        setUserData({ ...userData, paymentMethods: updatedPaymentMethods });
+
+        const updatedPaymentMethods = await response.json();
+        setUserData((prev) => ({
+          ...prev,
+          paymentMethods: updatedPaymentMethods,
+        }));
         closePaymentDialog();
+      } catch (error) {
+        console.error("Error updating payment method:", error);
       }
     }
   };
+
   const handleDeleteAddress = async (addressId) => {
     if (user) {
-      const userRef = doc(db, "users", user.uid);
-      const updatedAddresses = userData.addresses.filter(
-        (addr) => addr.id !== addressId
-      );
-      await updateDoc(userRef, { addresses: updatedAddresses });
-      setUserData({ ...userData, addresses: updatedAddresses });
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/auth/delete-address/${addressId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to delete address");
+        }
+
+        const updatedAddresses = await response.json();
+        setUserData((prev) => ({ ...prev, addresses: updatedAddresses }));
+      } catch (error) {
+        console.error("Error deleting address:", error);
+      }
     }
   };
 
   const handleDeletePaymentMethod = async (paymentMethodId) => {
     if (user) {
-      const userRef = doc(db, "users", user.uid);
-      const updatedPaymentMethods = userData.paymentMethods.filter(
-        (method) => method.id !== paymentMethodId
-      );
-      await updateDoc(userRef, { paymentMethods: updatedPaymentMethods });
-      setUserData({ ...userData, paymentMethods: updatedPaymentMethods });
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `http://localhost:5000/api/auth/delete-payment-method/${paymentMethodId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to delete payment method");
+        }
+
+        const updatedPaymentMethods = await response.json();
+        setUserData((prev) => ({
+          ...prev,
+          paymentMethods: updatedPaymentMethods,
+        }));
+      } catch (error) {
+        console.error("Error deleting payment method:", error);
+      }
+    }
+  };
+
+  const confirmOrderCancellation = (orderId) => {
+    setOrderToCancel(orderId);
+    setIsOrderCancelDialogOpen(true);
+  };
+
+  const handleCancelOrder = async () => {
+    if (user && orderToCancel) {
+      try {
+        setIsCancelling(true); // Set loading state to true
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
+
+        const response = await fetch(
+          "http://localhost:5000/api/auth/cancel-order",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ orderId: orderToCancel }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to cancel order");
+        }
+
+        const updatedOrders = await response.json();
+        setUserData((prev) => ({ ...prev, orders: updatedOrders }));
+
+        // Close dialog and reset state
+        setIsOrderCancelDialogOpen(false);
+        setOrderToCancel(null);
+        
+        // Show success toast
+        setToastMessage("Order cancelled successfully");
+        setShowToast(true);
+        
+        // Auto hide toast after 3 seconds
+        setTimeout(() => {
+          setShowToast(false);
+        }, 3000);
+      } catch (error) {
+        console.error("Error cancelling order:", error);
+        
+        // Show error toast
+        setToastMessage("Failed to cancel order. Please try again.");
+        setShowToast(true);
+      } finally {
+        setIsCancelling(false); // Reset loading state
+      }
+    }
+  };
+
+  const openProfileDialog = () => {
+    setProfileData({
+      fullName: userData?.fullName || "",
+      phoneNumber: userData?.phoneNumber || "",
+    });
+    setIsProfileDialogOpen(true);
+  };
+
+  // Add this function to handle saving profile changes
+  const handleSaveProfile = async () => {
+    if (user) {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/auth/update-profile",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              fullName: profileData.fullName,
+              phoneNumber: profileData.phoneNumber,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to update profile");
+        }
+
+        const updatedUserData = await response.json();
+        setUserData(updatedUserData); // Update state with updated data
+        setIsProfileDialogOpen(false); // Close dialog
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        alert("Failed to update profile. Please try again.");
+      }
     }
   };
 
@@ -231,26 +475,65 @@ const Profile = () => {
               {userData && (
                 <div className="space-y-6 h-full">
                   <div className="flex items-center p-6 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="w-16 h-16 bg-teal-700 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                      <div className="hidden sm:block">{userData.fullName.charAt(0)}</div>
-                    </div>
+                    {userData ? (
+                      <div className="w-16 h-16 bg-teal-700 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                        <div className="hidden sm:block">
+                          {userData?.fullName?.charAt(0) || ""}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                        Loading...
+                      </div>
+                    )}
                     <div className="md:ml-6 flex-1">
                       <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-400 mb-2">
-                        <span className="font-bold text-gray-800 dark:text-white">Name: </span> 
+                        <span className="font-bold text-gray-800 dark:text-white">
+                          Name:{" "}
+                        </span>
                         {userData.fullName}
                       </p>
-                      <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-400">
-                        <span className="font-bold text-gray-800 dark:text-white">Email: </span> 
+                      <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-400 mb-2">
+                        <span className="font-bold text-gray-800 dark:text-white">
+                          Email:{" "}
+                        </span>
                         {userData.email}
                       </p>
+                      {userData.phoneNumber && (
+                        <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-400">
+                          <span className="font-bold text-gray-800 dark:text-white">
+                            Phone:{" "}
+                          </span>
+                          {userData.phoneNumber}
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <div className="flex-1 flex items-end">
+                  <div className="flex gap-4">
                     <button
                       onClick={logout}
-                      className="w-full px-6 py-3 mt-20 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-300 text-lg font-semibold "
+                      className=" flex-1 w-full px-6 py-3  bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-300 text-lg font-semibold "
                     >
                       Logout
+                    </button>
+                    {/* <Link to="/admin">
+                      <button className=" flex-1 w-full px-6 py-3  bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-300 text-lg font-semibold ">
+                        Admin
+                      </button>
+                    </Link> */}
+                    <button
+                      onClick={openProfileDialog}
+                      className="bg-teal-600 text-white py-2 px-4 rounded-lg hover:bg-teal-700 transition-colors duration-200 flex items-center justify-center gap-2 flex-1"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                      </svg>
+                      Edit Profile
                     </button>
                   </div>
                 </div>
@@ -288,13 +571,19 @@ const Profile = () => {
                         <p className="text-xl font-bold text-teal-700 dark:text-teal-400">
                           ₹{order.totalAmount.toFixed(2)}
                         </p>
-                        <span className="inline-block px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+                        <span
+                          className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
+                            order.status === "Order Cancelled"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-green-100 text-green-800"
+                          }`}
+                        >
                           {order.status}
                         </span>
                       </div>
                     </div>
 
-                    {/* Update the items section */}
+                    {/* Items section remains the same */}
                     <div className="mt-4 space-y-4">
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
                         Items
@@ -322,8 +611,8 @@ const Profile = () => {
                                   ₹
                                   {Math.round(
                                     item.product.price *
-                                    (1 - (item.product.discount || 0) / 100) *
-                                    item.quantity
+                                      (1 - (item.product.discount || 0) / 100) *
+                                      item.quantity
                                   ).toFixed(2)}
                                 </p>
                               </div>
@@ -333,7 +622,7 @@ const Profile = () => {
                       </div>
                     </div>
 
-                    {/* Update shipping and payment info */}
+                    {/* Shipping and payment info with cancel button */}
                     <div className="grid md:grid-cols-2 gap-6 mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
                       <div>
                         <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
@@ -354,6 +643,30 @@ const Profile = () => {
                         </p>
                       </div>
                     </div>
+
+                    {/* Add cancel order button if order is not already cancelled */}
+                    {order.status !== "Order Cancelled" && (
+                      <div className="mt-6 flex justify-end">
+                        <button
+                          onClick={() => confirmOrderCancellation(order.id)}
+                          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 011.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          Cancel Order
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))
             ) : (
@@ -473,6 +786,30 @@ const Profile = () => {
           </div>
         )}
       </div>
+      <Dialog
+        open={isOrderCancelDialogOpen}
+        onOpenChange={setIsOrderCancelDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancel Order</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to cancel this order?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={handleCancelOrder}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Cancel Order
+            </Button>
+            <DialogClose asChild>
+              <Button variant="outline">Keep Order</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog open={isAddressDialogOpen} onOpenChange={setIsAddressDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -480,7 +817,8 @@ const Profile = () => {
               {address.id ? "Edit Address" : "Add New Address"}
             </DialogTitle>
             <DialogDescription>
-              Make changes to your address here. Click save when you&#39;re done.
+              Make changes to your address here. Click save when you&#39;re
+              done.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -549,9 +887,7 @@ const Profile = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {paymentMethod.id
-                ? "Edit Card Details"
-                : "Add New Card"}
+              {paymentMethod.id ? "Edit Card Details" : "Add New Card"}
             </DialogTitle>
             <DialogDescription>
               Make changes to your Card Details here. Click save when you&#39;re
@@ -681,6 +1017,103 @@ const Profile = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog
+        open={isOrderCancelDialogOpen}
+        onOpenChange={setIsOrderCancelDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Order Cancellation</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to cancel this order? This will permanently
+              remove it from your order history.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              onClick={handleCancelOrder}
+              className="bg-red-500 hover:bg-red-700"
+              disabled={isCancelling}
+            >
+              {isCancelling ? (
+                <>
+                  <div className="mr-2 animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                  Cancelling...
+                </>
+              ) : (
+                "Cancel Order"
+              )}
+            </Button>
+            <DialogClose asChild>
+              <Button variant="outline" disabled={isCancelling}>Cancel</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogDescription style={{ fontFamily: "cambria, serif" }}>
+              Make changes to your profile information here. Click save when
+              you&#39;re done.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="fullName" className="text-right">
+                Full Name
+              </Label>
+              <Input
+                id="fullName"
+                value={profileData.fullName}
+                onChange={(e) =>
+                  setProfileData({ ...profileData, fullName: e.target.value })
+                }
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="phoneNumber" className="text-right">
+                Phone Number
+              </Label>
+              <Input
+                id="phoneNumber"
+                value={profileData.phoneNumber}
+                onChange={(e) =>
+                  setProfileData({
+                    ...profileData,
+                    phoneNumber: e.target.value,
+                  })
+                }
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email" className="text-right">
+                Email
+              </Label>
+              <Input
+                id="email"
+                value={userData?.email || ""}
+                disabled
+                className="col-span-3 bg-gray-100 dark:bg-gray-700 cursor-not-allowed opacity-70"
+              />
+              <p className="col-span-4 text-right text-xs text-gray-500">
+                Email cannot be changed
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleSaveProfile}>Save Changes</Button>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {showToast && <Toast message={toastMessage} onClose={() => setShowToast(false)} />}
     </div>
   );
 };

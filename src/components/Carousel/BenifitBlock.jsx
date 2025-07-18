@@ -57,39 +57,36 @@ function BenifitBlock() {
       visible: {
         opacity: 1,
         transition: {
-          staggerChildren: 0.2
-        }
-      }
+          staggerChildren: 0.2,
+        },
+      },
     };
 
     const itemVariants = {
-      hidden: { 
+      hidden: {
         opacity: 0,
-        y: 50
+        y: 50,
       },
       visible: {
         opacity: 1,
         y: 0,
         transition: {
           duration: 0.8,
-          ease: "easeOut"
-        }
-      }
+          ease: "easeOut",
+        },
+      },
     };
 
     return (
       <div className="bg-gradient-to-b from-gray-50 dark:from-gray-900 to-teal-50/30 dark:to-gray-800 py-16">
-        <motion.div 
+        <motion.div
           className="max-w-6xl mx-auto px-4"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           // viewport={{ once: true, margin: "-100px" }}
         >
-          <motion.div 
-            className="text-center mb-12"
-            variants={itemVariants}
-          >
+          <motion.div className="text-center mb-12" variants={itemVariants}>
             <GiHerbsBundle className="text-teal-600 dark:text-teal-400 text-4xl mx-auto mb-4" />
             <h2
               className="text-3xl font-medium text-gray-800 dark:text-white mb-2 tracking-wider"
@@ -105,7 +102,7 @@ function BenifitBlock() {
             </p>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="relative bg-gray-100 dark:bg-gray-900 rounded-2xl shadow-xl p-8 md:p-12 border-2 border-gray-950 dark:border-gray-200 hover:border-gray-300 dark:hover:border-gray-600"
             variants={itemVariants}
           >
@@ -132,7 +129,7 @@ function BenifitBlock() {
               <FaChevronRight className="text-xl" />
             </motion.button>
 
-            <motion.div 
+            <motion.div
               className="relative z-10 max-w-3xl mx-auto text-center"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -150,7 +147,7 @@ function BenifitBlock() {
                 {testimonials[currentIndex].text}
               </motion.p>
 
-              <motion.div 
+              <motion.div
                 className="flex flex-col items-center"
                 variants={itemVariants}
               >

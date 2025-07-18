@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { db } from "../../../firebase.js"; // Import Firebase config
-import { collection, getDocs } from "firebase/firestore";
+
 import { Loader } from "lucide-react";
 import {  PiPottedPlantBold } from "react-icons/pi";
 
@@ -13,22 +12,17 @@ function BlogSlug() {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "blogData"));
-        const blogList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        const foundBlog = blogList.find((b) => b.slug === slug);
-        if (foundBlog) {
-          setBlog(foundBlog);
-        } else {
-          console.error("No blog found with the given slug");
+        const response = await fetch(`http://localhost:5000/api/blogs/${slug}`);
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
+        const blogData = await response.json();
+        setBlog(blogData);
       } catch (error) {
         console.error("Error fetching blog:", error);
       }
     };
-
+  
     fetchBlog();
   }, [slug]);
 

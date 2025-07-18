@@ -9,6 +9,6 @@
     },
     "esModuleInterop": true,
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "appwrite.js"],
   "exclude": ["node_modules", "dist"],
 }

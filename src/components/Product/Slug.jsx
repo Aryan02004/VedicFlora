@@ -1,14 +1,14 @@
 import { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
-import { db } from "../../../firebase.js";
-import { collection, getDocs } from "firebase/firestore";
 import { Loader } from "lucide-react";
 import { FaStar } from "react-icons/fa";
 import { BsCart3 } from "react-icons/bs";
 import { CartContext } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import Toast from "../Toast/Toast";
+import { motion } from "framer-motion";
+
 
 function Slug() {
   const { slug } = useParams();
@@ -21,26 +21,21 @@ function Slug() {
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProductBySlug = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "products"));
-        const productList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        const foundProduct = productList.find((p) => p.slug === slug);
-        if (foundProduct) {
-          setProduct(foundProduct);
-          setMainImage(foundProduct.image1);
-        } else {
-          console.error("No product found with the given slug");
+        const response = await fetch(`http://localhost:5000/api/products/${slug}`);
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
+        const productData = await response.json();
+        setProduct(productData);
+        setMainImage(productData.image1);
       } catch (error) {
-        console.error("Error fetching product:", error);
+        console.error("Error fetching product by slug:", error);
       }
     };
 
-    fetchProducts();
+    fetchProductBySlug();
   }, [slug]);
 
   if (!product) {
@@ -156,18 +151,28 @@ function Slug() {
         </div>
 
         <div className="mt-14 w-full flex gap-4 font-sans">
-          <button
-            className="w-full bg-teal-700 text-white py-3 gap-3 rounded-lg hover:bg-teal-900 flex items-center justify-center font-semibold "
-            onClick={handleAddToCart}
-          >
-            <BsCart3 /> Add to Cart
-          </button>
-          <button
-            className="w-full bg-white dark:bg-gray-800 border-2 border-teal-900 text-teal-900 dark:text-teal-400 py-3 gap-3 rounded-lg hover:bg-teal-50 dark:hover:bg-gray-700 flex items-center justify-center font-semibold "
-            onClick={handleBlogNavigation}
+          {product.stock > 0 ? (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full bg-teal-700 text-white py-2 gap-3 rounded-lg hover:bg-teal-900 flex items-center justify-center font-semibold"
+              onClick={() => handleAddToCart(product)}
+            >
+              <BsCart3 /> Add to Cart
+            </motion.button>
+          ) : (
+            <div className="w-full bg-gray-300 text-gray-700 py-2 rounded-lg flex items-center justify-center font-semibold cursor-not-allowed">
+              Out of Stock
+            </div>
+          )}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full bg-white dark:bg-gray-900 border-2 border-teal-900 text-teal-900 dark:text-white py-2 gap-3 rounded-lg hover:bg-teal-50 dark:hover:bg-gray-700 flex items-center justify-center font-semibold"
+            onClick={() => handleBlogNavigation(product)}
           >
             Blog
-          </button>
+          </motion.button>
         </div>
       </div>
       {showToast && (

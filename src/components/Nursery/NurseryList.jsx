@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { db } from "../../../firebase.js"; // Import Firebase config
-import { collection, getDocs } from "firebase/firestore";
 import { MdOutlineMailOutline, MdSearch } from "react-icons/md";
 import { SlLocationPin } from "react-icons/sl";
 import { Loader } from "lucide-react";
@@ -56,19 +54,19 @@ function NurseryList() {
   useEffect(() => {
     const fetchnurserys = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "Nursery"));
-        const nurseryList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const response = await fetch("http://localhost:5000/api/nurseries");
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+        const nurseryList = await response.json();
         setNursery(nurseryList);
       } catch (error) {
-        console.error("Error fetching nurserys:", error);
+        console.error("Error fetching nurseries:", error);
       } finally {
         setLoading(false); // Set loading to false after fetching data
       }
     };
-
+  
     fetchnurserys();
   }, []);
 

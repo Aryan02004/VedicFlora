@@ -1,11 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { db } from "../../firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+
 
 function Shipping() {
-  const { user } = useAuth();
   const [addresses, setAddresses] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState("");
@@ -29,19 +26,33 @@ function Shipping() {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (user) {
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const userData = docSnap.data();
-          setAddresses(userData.addresses || []);
-          setPaymentMethods(userData.paymentMethods || []);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:5000/api/auth/shipping-data", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch shipping data");
         }
+
+        const data = await response.json();
+        setAddresses(data.addresses);
+        setPaymentMethods(data.paymentMethods);
+      } catch (error) {
+        console.error("Error fetching shipping data:", error);
       }
     };
 
     fetchUserData();
-  }, [user]);
+  }, []);
 
   const validatePaymentMethod = () => {
     const errors = {};
@@ -70,6 +81,64 @@ function Shipping() {
     if (!newAddress.zip) errors.zip = "ZIP code is required";
     setAddressErrors(errors);
     return Object.keys(errors).length === 0;
+  };
+
+  const handleSaveAddress = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found");
+      return;
+    }
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/update-address", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ address: newAddress }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to update address");
+      }
+  
+      const updatedAddresses = await response.json();
+      setAddresses(updatedAddresses);
+      setSelectedAddress(newAddress);
+    } catch (error) {
+      console.error("Error updating address:", error);
+    }
+  };
+
+  const handleSavePaymentMethod = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found");
+      return;
+    }
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/update-payment-method", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ paymentMethod: newPaymentMethod }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to update payment method");
+      }
+  
+      const updatedPaymentMethods = await response.json();
+      setPaymentMethods(updatedPaymentMethods);
+      setSelectedPaymentMethod(newPaymentMethod);
+    } catch (error) {
+      console.error("Error updating payment method:", error);
+    }
   };
 
   const handleContinue = async () => {
@@ -123,12 +192,8 @@ function Shipping() {
         newAddress.state &&
         newAddress.zip
       ) {
-        const updatedAddresses = [...addresses, newAddress];
-        await updateDoc(doc(db, "users", user.uid), {
-          addresses: updatedAddresses,
-        });
-        setAddresses(updatedAddresses);
-        setSelectedAddress(newAddress);
+        // Use the handleSaveAddress function instead of direct Firestore update
+        await handleSaveAddress();
       }
       if (
         selectedPaymentMethod === "Credit/Debit Card" &&
@@ -137,12 +202,8 @@ function Shipping() {
         newPaymentMethod.cardHolderName &&
         newPaymentMethod.cvv
       ) {
-        const updatedPaymentMethods = [...paymentMethods, newPaymentMethod];
-        await updateDoc(doc(db, "users", user.uid), {
-          paymentMethods: updatedPaymentMethods,
-        });
-        setPaymentMethods(updatedPaymentMethods);
-        setSelectedPaymentMethod(newPaymentMethod);
+        // Use the handleSavePaymentMethod function instead of direct Firestore update
+        await handleSavePaymentMethod();
       }
 
       if (
@@ -166,7 +227,7 @@ function Shipping() {
             ? newPaymentMethod
             : JSON.parse(selectedPaymentMethod);
 
-        navigate("/order-summary", {
+        navigate("/ordersummary", {
           state: {
             cart: JSON.parse(localStorage.getItem("cart")),
             selectedAddress: addressToUse,

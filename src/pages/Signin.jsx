@@ -1,32 +1,75 @@
 // src/components/Signin.js
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase";
 import { useNavigate, Link } from "react-router-dom";
 import Toast from "../components/Toast/ToastMassege";
-import { FiMail, FiLock } from "react-icons/fi"; // Import icons
+import { FiMail, FiLock } from "react-icons/fi";
+// import { FcGoogle } from "react-icons/fc";
+// import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+// import { auth } from "../firebase";
+import { useAuth } from "../context/AuthContext";
 
 const Signin = () => {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showToast, setShowToast] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSignin = async (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
+
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      // Use login function from context
+      await login(email, password);
+      
+      // Show success toast and navigate
       setShowToast(true);
       setTimeout(() => {
-        setShowToast(false);
-        navigate("/"); // Navigate to home page
-      }, 1000);
+        navigate("/");
+      }, 1500);
     } catch (error) {
-      setError(error.message);
+      console.error("Login error:", error);
+      // More comprehensive error handling
+      switch (error.code) {
+        case 'auth/invalid-credential':
+        case 'auth/wrong-password':
+        case 'auth/user-not-found':
+          setError("Invalid email or password");
+          break;
+        case 'auth/too-many-requests':
+          setError("Too many failed login attempts. Please try again later.");
+          break;
+        case 'auth/user-disabled':
+          setError("This account has been disabled.");
+          break;
+        case 'auth/invalid-email':
+          setError("Invalid email format.");
+          break;
+        default:
+          setError("An error occurred during sign in. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  // Google sign-in handler (commented out, but ready to use)
+  // const handleGoogleSignIn = async () => {
+  //   try {
+  //     const provider = new GoogleAuthProvider();
+  //     await signInWithPopup(auth, provider);
+  //     setShowToast(true);
+  //     setTimeout(() => {
+  //       navigate("/");
+  //     }, 1500);
+  //   } catch (error) {
+  //     setError(error.message);
+  //   }
+  // };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
@@ -53,7 +96,7 @@ const Signin = () => {
                 Email address
               </label>
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FiMail className=" z-30" size={20} />
+                <FiMail className="z-30" size={20} />
               </div>
               <input
                 id="email"
@@ -109,11 +152,30 @@ const Signin = () => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors duration-200"
+              disabled={isLoading}
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              Sign In
+              {isLoading ? "Signing in..." : "Sign In"}
             </button>
           </div>
+          
+          <div className="flex items-center my-4">
+            <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600"></div>
+            <span className="px-4 text-sm text-gray-500 dark:text-gray-400">or</span>
+            <div className="flex-grow h-px bg-gray-300 dark:bg-gray-600"></div>
+          </div>
+          
+          {/* Uncomment for Google Sign-In */}
+          {/* <div>
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              className="group relative w-full flex justify-center items-center py-3 px-4 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-white bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors duration-200"
+            >
+              <FcGoogle className="mr-2" size={20} />
+              Sign in with Google
+            </button>
+          </div> */}
 
           <div className="text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
