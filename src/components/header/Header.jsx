@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { PiShoppingCartLight } from "react-icons/pi";
 import { GoSearch } from "react-icons/go";
 import { FaBars, FaTimes } from "react-icons/fa"; // Import icons for hamburger menu
-import Image from "../../assets/vedic-circle.png";
+import Image from "../../assets/vedic-flora.png";
 import Search from "../Search/Search";
 import { useAuth } from "../../context/AuthContext";
 import { CartContext } from "../../context/CartContext"; // Import CartContext

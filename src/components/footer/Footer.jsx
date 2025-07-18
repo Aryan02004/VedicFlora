@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import Image from "../../assets/vedic-circle.png";
+import Image from "../../assets/vedic-flora.png";
 import {
   FaFacebook,
   FaTwitter,
