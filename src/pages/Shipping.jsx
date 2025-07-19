@@ -33,7 +33,7 @@ function Shipping() {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/auth/shipping-data",
+          `${import.meta.env.VITE_API_URL}/api/auth/shipping-data`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -94,7 +94,7 @@ function Shipping() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/update-address",
+        `${import.meta.env.VITE_API_URL}/api/auth/update-address`,
         {
           method: "PUT",
           headers: {
@@ -126,7 +126,7 @@ function Shipping() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/update-payment-method",
+        `${import.meta.env.VITE_API_URL}/api/auth/update-payment-method`,
         {
           method: "PUT",
           headers: {

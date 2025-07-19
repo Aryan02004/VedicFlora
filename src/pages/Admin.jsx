@@ -108,7 +108,7 @@ function Admin() {
       }
 
       const response = await fetch(
-        "http://localhost:5000/api/admin/dashboard-data",
+        `${import.meta.env.VITE_API_URL}/api/admin/dashboard-data`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -162,7 +162,7 @@ function Admin() {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/auth/check-admin",
+          `${import.meta.env.VITE_API_URL}/api/auth/check-admin`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

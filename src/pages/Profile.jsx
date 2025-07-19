@@ -69,7 +69,7 @@ const Profile = () => {
 
         try {
           const response = await fetch(
-            "http://localhost:5000/api/auth/profile",
+            `${import.meta.env.VITE_API_URL}/api/auth/profile`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -101,7 +101,7 @@ const Profile = () => {
       }
 
       try {
-        const response = await fetch("http://localhost:5000/api/orders", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -170,7 +170,7 @@ const Profile = () => {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/auth/update-address",
+          `${import.meta.env.VITE_API_URL}/api/auth/update-address`,
           {
             method: "PUT",
             headers: {
@@ -246,7 +246,7 @@ const Profile = () => {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/auth/update-payment-method",
+          `${import.meta.env.VITE_API_URL}/api/auth/update-payment-method`,
           {
             method: "PUT",
             headers: {
@@ -283,7 +283,7 @@ const Profile = () => {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/api/auth/delete-address/${addressId}`,
+          `${import.meta.env.VITE_API_URL}/api/auth/delete-address/${addressId}`,
           {
             method: "DELETE",
             headers: {
@@ -314,7 +314,7 @@ const Profile = () => {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/api/auth/delete-payment-method/${paymentMethodId}`,
+          `${import.meta.env.VITE_API_URL}/api/auth/delete-payment-method/${paymentMethodId}`,
           {
             method: "DELETE",
             headers: {
@@ -354,7 +354,7 @@ const Profile = () => {
         }
 
         const response = await fetch(
-          "http://localhost:5000/api/auth/cancel-order",
+          `${import.meta.env.VITE_API_URL}/api/auth/cancel-order`,
           {
             method: "PUT",
             headers: {
@@ -415,7 +415,7 @@ const Profile = () => {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/auth/update-profile",
+          `${import.meta.env.VITE_API_URL}/api/auth/update-profile`,
           {
             method: "PUT",
             headers: {

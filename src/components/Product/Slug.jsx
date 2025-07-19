@@ -23,7 +23,7 @@ function Slug() {
     const fetchProductBySlug = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/products/${slug}`
+          `${import.meta.env.VITE_API_URL}/api/products/${slug}`
         );
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`);

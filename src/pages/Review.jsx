@@ -30,7 +30,7 @@ function Review() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/reviews");
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reviews`);
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
@@ -112,7 +112,7 @@ function Review() {
           userId: user ? user.uid : null,
         };
 
-        const response = await fetch("http://localhost:5000/api/reviews", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reviews`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

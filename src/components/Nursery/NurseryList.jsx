@@ -53,7 +53,7 @@ function NurseryList() {
   useEffect(() => {
     const fetchnurserys = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/nurseries");
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/nurseries`);
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
