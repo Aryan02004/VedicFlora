@@ -1,15 +1,17 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { fileURLToPath, URL } from 'node:url';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      // eslint-disable-next-line no-undef
-      '@shadcn/ui': path.resolve(__dirname, 'node_modules/@shadcn/ui/dist'),
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@shadcn/ui': path.resolve(fileURLToPath(new URL('.', import.meta.url)), 'node_modules/@shadcn/ui/dist'),
     },
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json']
   },
   build: {
     sourcemap: true, // Generate sourcemaps for better error reporting
