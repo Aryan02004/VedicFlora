@@ -30,7 +30,7 @@ function Home() {
 
       {/* Welcome Banner */}
       <motion.section
-        className="relative py-16 bg-gradient-to-r from-teal-50 via-white to-emerald-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 overflow-hidden m-6 p-6 rounded-lg shadow-lg"
+        className="relative py-8 md:py-16 bg-gradient-to-r from-teal-50 via-white to-emerald-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 overflow-hidden m-2 md:m-6 p-4 md:p-6 rounded-lg shadow-lg"
         initial={{ opacity: 0 }}
         animate={isLoaded ? { opacity: 1 } : { opacity: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
@@ -43,16 +43,16 @@ function Home() {
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex flex-col md:flex-row items-center justify-between">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
             <motion.div
-              className="md:w-1/2 mb-8 md:mb-0"
+              className="w-full md:w-1/2 text-center md:text-left"
               variants={fadeInVariants}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
             >
               <motion.h1
-                className="text-xl md:text-5xl lg:text-6xl font-bold mb-6 text-gray-800 dark:text-white"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold mb-4 md:mb-6 text-gray-800 dark:text-white leading-tight"
                 style={{ fontFamily: "Lobster, serif" }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -64,32 +64,32 @@ function Home() {
                 </span>
               </motion.h1>
               <h2
-                className="text-3xl md:text-3xl font-bold text-gray-800 dark:text-white mb-4 ml-16"
+                className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white mb-3 md:mb-4"
                 style={{ fontFamily: "cambria, serif" }}
               >
                 Ancient Wisdom for Modern Wellness
               </h2>
               <p
-                className="text-gray-600 dark:text-gray-300 text-lg mb-6"
+                className="text-gray-600 dark:text-gray-300 text-sm sm:text-base md:text-lg mb-6 max-w-md mx-auto md:mx-0"
                 style={{ fontFamily: "cambria, serif" }}
               >
                 Discover the healing power of authentic Ayurvedic plants,
                 carefully cultivated using traditional methods to preserve their
                 medicinal properties.
               </p>
-              <div className="flex flex-wrap gap-4">
-                <Link to="/plants">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center md:justify-start">
+                <Link to="/plants" className="w-full sm:w-auto">
                   <motion.button
-                    className="px-8 py-3 bg-teal-700 text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-teal-800 transition-colors shadow-lg"
+                    className="w-full sm:w-auto px-6 md:px-8 py-3 bg-teal-700 text-white rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-teal-800 transition-colors shadow-lg text-sm md:text-base"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <GiHerbsBundle /> Explore Plants
                   </motion.button>
                 </Link>
-                <Link to="/about">
+                <Link to="/about" className="w-full sm:w-auto">
                   <motion.button
-                    className="px-8 py-3 border-2 border-teal-700 text-teal-700 dark:border-teal-500 dark:text-teal-500 rounded-lg font-semibold hover:bg-teal-50 dark:hover:bg-teal-950/50 transition-colors"
+                    className="w-full sm:w-auto px-6 md:px-8 py-3 border-2 border-teal-700 text-teal-700 dark:border-teal-500 dark:text-teal-500 rounded-lg font-semibold hover:bg-teal-50 dark:hover:bg-teal-950/50 transition-colors text-sm md:text-base"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -100,29 +100,29 @@ function Home() {
             </motion.div>
 
             <motion.div
-              className=""
+              className="w-full md:w-1/2 flex justify-center md:justify-end"
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <div className="relative w-[38rem]">
-                {/* Decorative elements */}
-                <div className="absolute -top-6 -left-6 w-24 h-24 bg-teal-100 dark:bg-teal-900/30 rounded-full z-0"></div>
-                <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-emerald-100 dark:bg-emerald-900/30 rounded-full z-0"></div>
+              <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:w-[38rem]">
+                {/* Decorative elements - smaller on mobile */}
+                <div className="absolute -top-3 md:-top-6 -left-3 md:-left-6 w-12 h-12 md:w-24 md:h-24 bg-teal-100 dark:bg-teal-900/30 rounded-full z-0"></div>
+                <div className="absolute -bottom-3 md:-bottom-6 -right-3 md:-right-6 w-16 h-16 md:w-32 md:h-32 bg-emerald-100 dark:bg-emerald-900/30 rounded-full z-0"></div>
 
-                {/* Decorative dots */}
-                <div className="absolute top-1/4 -left-4 w-6 h-6 bg-yellow-400 dark:bg-yellow-600 rounded-full z-20 animate-pulse"></div>
+                {/* Decorative dots - smaller on mobile */}
+                <div className="absolute top-1/4 -left-2 md:-left-4 w-3 h-3 md:w-6 md:h-6 bg-yellow-400 dark:bg-yellow-600 rounded-full z-20 animate-pulse"></div>
                 <div
-                  className="absolute bottom-1/3 -right-3 w-4 h-4 bg-teal-400 dark:bg-teal-600 rounded-full z-20 animate-pulse"
+                  className="absolute bottom-1/3 -right-1 md:-right-3 w-2 h-2 md:w-4 md:h-4 bg-teal-400 dark:bg-teal-600 rounded-full z-20 animate-pulse"
                   style={{ animationDelay: "1s" }}
                 ></div>
 
-                {/* Main image with enhanced shadow */}
+                {/* Main image with responsive sizing */}
                 <img
                   src="https://c4.wallpaperflare.com/wallpaper/858/649/116/bowl-kettle-pitcher-glass-medicine-hd-wallpaper-preview.jpg"
                   alt="Ayurvedic plants"
-                  className="rounded-lg shadow-[0_20px_50px_rgba(8,_112,_84,_0.2)] dark:shadow-[0_20px_50px_rgba(8,_112,_84,_0.3)] relative z-10 object-cover h-full ml-[70px]"
+                  className="w-full h-48 sm:h-64 md:h-80 lg:h-96 rounded-lg shadow-[0_20px_50px_rgba(8,_112,_84,_0.2)] dark:shadow-[0_20px_50px_rgba(8,_112,_84,_0.3)] relative z-10 object-cover"
                 />
               </div>
             </motion.div>
