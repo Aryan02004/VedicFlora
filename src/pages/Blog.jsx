@@ -11,7 +11,7 @@ function Blog() {
 
   return (
     <>
-      <BackgroundImage title="Our Blogs" size={6} lineWidth={12} image="/blog-4.png" onLoad={handleBackgroundImageLoad} />
+      <BackgroundImage title="Our Blogs" size={6} lineWidth={12} image="/blog.png" onLoad={handleBackgroundImageLoad} />
       {isBackgroundImageLoaded && <BlogList />}
     </>
   );
