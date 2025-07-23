@@ -19,7 +19,6 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "firebase-admin": "^13.2.0",
-    "form-data": "^2.5.5",
     "jsonwebtoken": "^9.0.2",
     "node-appwrite": "^15.0.1"
   }
