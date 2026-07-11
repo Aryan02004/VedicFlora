@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
-const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 
@@ -68,7 +67,7 @@ app.post("/api/auth/register", async (req, res) => {
 app.post("/api/auth/login", async (req, res) => {
   // Just for compatibility with your frontend - in production,
   // you might want to remove this and handle auth directly in the frontend
-  const { email, password } = req.body;
+  const { email } = req.body;
 
   try {
     // Let Firebase handle the authentication

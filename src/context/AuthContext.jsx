@@ -1,5 +1,5 @@
 // src/context/AuthContext.js
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import {
   onAuthStateChanged,
@@ -180,4 +180,5 @@ AuthProvider.propTypes = {
 };
 
 // Move this to a separate file to avoid Fast Refresh warning
-export const useAuth = () => useContext(AuthContext);
+// useAuth hook moved to hooks/useAuth.js
+export { AuthContext };

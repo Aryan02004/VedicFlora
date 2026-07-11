@@ -5,7 +5,7 @@ import { GoSearch } from "react-icons/go";
 import { FaBars, FaTimes } from "react-icons/fa"; // Import icons for hamburger menu
 import Image from "../../assets/vedic-flora.png";
 import Search from "../Search/Search";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/hooks/useAuth";
 import { CartContext } from "../../context/CartContext"; // Import CartContext
 import ThemeToggle from "../ThemeToggle";
 import { FaRegCircleUser } from "react-icons/fa6";

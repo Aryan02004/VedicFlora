@@ -1,4 +1,8 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import PropTypes from "prop-types";
+ThemeProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+import { createContext, useEffect, useState } from 'react';
 
 const ThemeContext = createContext();
 
@@ -28,8 +32,5 @@ export function ThemeProvider({ children }) {
   );
 }
 
-export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (!context) throw new Error('useTheme must be used within a ThemeProvider');
-  return context;
-};
+// useTheme hook moved to hooks/useTheme.js
+export { ThemeContext };

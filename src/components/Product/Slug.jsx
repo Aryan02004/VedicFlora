@@ -5,7 +5,7 @@ import { Loader } from "lucide-react";
 import { FaStar } from "react-icons/fa";
 import { BsCart3 } from "react-icons/bs";
 import { CartContext } from "../../context/CartContext";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/hooks/useAuth";
 import Toast from "../Toast/Toast";
 import { motion } from "framer-motion";
 

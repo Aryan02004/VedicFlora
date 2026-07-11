@@ -1,4 +1,4 @@
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Toast from "../components/Toast/ToastMassege";

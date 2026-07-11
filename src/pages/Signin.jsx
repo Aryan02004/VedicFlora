@@ -6,7 +6,7 @@ import { FiMail, FiLock } from "react-icons/fi";
 // import { FcGoogle } from "react-icons/fc";
 // import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 // import { auth } from "../firebase";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/hooks/useAuth";
 
 const Signin = () => {
   const { login } = useAuth();

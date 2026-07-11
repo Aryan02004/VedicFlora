@@ -6,7 +6,7 @@ import { BsCart3 } from "react-icons/bs";
 import { Badge } from "../ui/badge.js";
 import { FaArrowRightLong } from "react-icons/fa6";
 import { CartContext } from "../../context/CartContext.jsx";
-import { useAuth } from "../../context/AuthContext.jsx";
+import { useAuth } from "../../context/hooks/useAuth";
 import Toast from "../Toast/Toast.jsx";
 import { motion } from "framer-motion";
 

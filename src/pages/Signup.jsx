@@ -6,7 +6,7 @@ import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input-1";
 import { cn } from "../lib/utils";
 import PropTypes from "prop-types";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/hooks/useAuth";
 
 const Signup = () => {
   const { register } = useAuth();

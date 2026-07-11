@@ -5,7 +5,7 @@ import { BsCart3 } from "react-icons/bs";
 import { Badge } from "../ui/badge.js";
 import Toast from "../Toast/Toast.jsx";
 import { CartContext } from "../../context/CartContext.jsx";
-import { useAuth } from "../../context/AuthContext.jsx";
+import { useAuth } from "../../context/hooks/useAuth";
 import { Loader } from "lucide-react";
 import { motion } from "framer-motion";
 
