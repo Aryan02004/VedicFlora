@@ -19,12 +19,14 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "firebase-admin": "^13.2.0",
+    "i": "^0.3.7",
     "jsonwebtoken": "^9.0.2",
-    "node-appwrite": "^15.0.1"
+    "node-appwrite": "^15.0.1",
+    "npm": "^11.18.0",
+    "protobufjs": "^8.7.1"
   },
   "overrides": {
     "form-data": "2.5.6",
-    "protobufjs": "^8.7.1",
     "@grpc/grpc-js": "1.13.5",
     "qs": "6.15.2",
     "uuid": "11.1.1",
